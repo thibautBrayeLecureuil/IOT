@@ -1,7 +1,7 @@
 import adafruit_dht
 import board
 
-dht_device = adafruit_dht.DHT11(board.D2)
+dht_device = adafruit_dht.DHT11(board.GPIO2)
 
 
 def main():
