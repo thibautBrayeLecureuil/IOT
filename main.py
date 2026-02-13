@@ -13,7 +13,7 @@ def main():
         print("Humidity:", dhtDevice.humidity)
         print("Temperature:", dhtDevice.temperature)
         print("================================")
-        sleep(2)
+        sleep(5)
 
 if __name__ == "__main__":
     main()
