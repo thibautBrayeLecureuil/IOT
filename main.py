@@ -1,11 +1,12 @@
 import adafruit_dht
+from board import <pin>
 
-DHT_PIN = 2
-DHT_SENSOR = adafruit_dht.DHT11
+dht_device = adafruit_dht.DHT11(<pin>)
 
 
 def main():
-    humidity, temperature = adafruit_dht.read(DHT_SENSOR, DHT_PIN)
+    temperature = dht_device.temperature
+    humidity = dht_device.humidity
     print("Humidity:", humidity)
     print("Temperature:", temperature)
     print("================================")
