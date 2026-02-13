@@ -13,11 +13,10 @@ def main():
             dhtDevice.measure()
             print("Humidity:", dhtDevice.humidity)
             print("Temperature:", dhtDevice.temperature)
-
-            sleep(5)
         except RuntimeError:
             print("Petite erreur on revient vite 😊")
         print("================================")
+        sleep(5)
 
 
 
