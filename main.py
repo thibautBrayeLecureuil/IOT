@@ -1,12 +1,13 @@
 import adafruit_dht
 import board
 
-dht_device = adafruit_dht.DHT11(board.GPIO2)
-
+pin_to_use = "GPIO2"
 
 def main():
-    temperature = dht_device.temperature
-    humidity = dht_device.humidity
+
+    dhtDevice = adafruit_dht.DHT11(pin=getattr(board, pin_to_use))
+    temperature = dhtDevice.temperature
+    humidity = dhtDevice.humidity
     print("Humidity:", humidity)
     print("Temperature:", temperature)
     print("================================")
