@@ -6,7 +6,6 @@ import time
 
 dhtDevice = adafruit_dht.DHT11(board.D2)
 
-
 def main():
     while(True):
         try:
@@ -16,7 +15,7 @@ def main():
         except RuntimeError:
             print("Petite erreur on revient vite 😊")
         print("================================")
-        sleep(5)
+        sleep(60)
 
 
 
