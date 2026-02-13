@@ -5,12 +5,11 @@ dhtDevice = adafruit_dht.DHT11(board.D2)
 
 
 def main():
-
-    temperature = dhtDevice.temperature
-    humidity = dhtDevice.humidity
-    print("Humidity:", humidity)
-    print("Temperature:", temperature)
-    print("================================")
+    while(True):
+        dhtDevice.measure()
+        print("Humidity:", dhtDevice.humidity)
+        print("Temperature:", dhtDevice.temperature)
+        print("================================")
 
 if __name__ == "__main__":
     main()
