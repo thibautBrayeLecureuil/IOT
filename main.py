@@ -1,5 +1,5 @@
 import adafruit_dht
-from board
+import board
 
 dht_device = adafruit_dht.DHT11(board.D2)
 
