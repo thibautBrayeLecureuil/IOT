@@ -8,7 +8,6 @@ import datetime
 from getmac import get_mac_address
 import json
 
-
 dhtDevice = adafruit_dht.DHT11(board.D2)
 
 BROKER = "10.33.14.44"
@@ -34,7 +33,7 @@ def main():
 
             timestamp = datetime.datetime.now().isoformat()
 
-            json = {
+            data = {
                 "MAC_ADDRESS": get_mac_address(),
                 "TIMESTAMP": timestamp,
                 "METRICS": {
@@ -46,18 +45,12 @@ def main():
             topic = f"LTH/{TOPIC}"
 
             # PART 5
-            client.publish(topic, json.dumps(json))
+            client.publish(topic, json.dumps(data))
 
         except RuntimeError:
             print("Petite erreur on revient vite 😊")
         print("================================")
         sleep(60)
-
-
-
-
-
-
 
 if __name__ == "__main__":
     main()
