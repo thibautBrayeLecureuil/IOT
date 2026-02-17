@@ -3,10 +3,8 @@
         "broker": "localhost",
         "port": 1883,
         "topics": [
-            "LTH/HT",
-            "LTH/LS"
-        ],
-        "ack_topic":
-            "LTH/ACK"
+            "device/HT",
+            "device/LS"
+        ]
     }
 }
