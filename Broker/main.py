@@ -17,6 +17,7 @@ TEMPERATURE = 'TEMPERATURE'
 HUMIDITY= 'HUMIDITY'
 LIGHT = 'LIGHT'
 SOUND = 'SOUND'
+TIMESTAMP = "TIMESTAMP"
 
 #Juste des variables
 broker = data['mqtt']['broker']
@@ -30,12 +31,13 @@ def on_connect(client, userdata, flags, rc):
         client.subscribe(topic) #On s'abonne aux topics
         print(f"abonné à : {topic}")
 
-def update_device(mac_address, msgType, metrics):
+def update_device(mac_address, msgType, metrics,timestamp):
     if mac_address in devices :
         devices[mac_address][msgType] += 1
         devices[mac_address][METRICS] = metrics
+        devices[mac_address][TIMESTAMP] = timestamp
     else :
-        devices[mac_address] = {TYPE_MSG: 1, TYPE_ERROR: 0, METRICS: metrics}
+        devices[mac_address] = {TYPE_MSG : 1, TYPE_ERROR : 0, METRICS : metrics, TIMESTAMP : timestamp}
 
 def update_supervis_data(mac_source):
 
@@ -75,17 +77,21 @@ def error_percent(mac_source):
 
     return nbError/nbMessage*100
         
+def check_connections():
+    for device in devices:
+        if device[TIMESTAMP] - datetime.now().isoformat():
+            components.pop(device)
 
 def on_message(client, userdata, msg):
     try:
         payload_str = json.loads(msg.payload.decode("utf-8")) #On déchiffre le message reçu
         mac_source = payload_str.get("MAC_ADDRESS")
         
-        time = payload_str.get("TIMESTAMP")
+        timestamp = payload_str.get(TIMESTAMP)
        
         metrics = payload_str.get(METRICS)
 
-        update_device(mac_source, TYPE_MSG, metrics)
+        update_device(mac_source, TYPE_MSG, metrics, timestamp)
 
         #On vérifie quelles données sont présentes
         update_supervis_data(mac_source)
@@ -103,6 +109,8 @@ def on_message(client, userdata, msg):
             })
             client.publish(msg.topic, ack_payload)
             print(f"message d'erreur envoyé vers {msg.topic}")"""
+
+    check_connections()
 
 
 window = tk.Tk()
