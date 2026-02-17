@@ -1,10 +1,12 @@
+import datetime
 import time
 import grovepi
 import math
 import json
 import paho.mqtt.client as mqtt
+from getmac import get_mac_address
 
-MQTT_BROKER = "10.33.14.44" 
+MQTT_BROKER = "87.106.23.178" 
 MQTT_PORT = 1883
 MQTT_TOPIC = "device/LS"
 
@@ -14,23 +16,18 @@ light_sensor = 1 #port a1
 grovepi.pinMode(sound_sensor, "INPUT")
 grovepi.pinMode(light_sensor, "INPUT")
 
-# Conversion de la valeur du son en dB
-def sound_to_db(value):
-    # Convertir la valeur analogique (0-1023) en dB
-    # Seuil de silence à ~300
-    if value < 300:
-        return 0
-    db = 20 * math.log10(value / 10)
-    return db
-
-# Conversion de la valeur de la lumière en lux
-def light_to_lux(value):
-    # Convertir la valeur analogique (0-1023) en lux
-    lux = value / 1023.0 * 10000 
-    return lux
-
 #config mqtt
 client = mqtt.Client()
+
+def sound_to_db(sound_value):
+    if sound_value <= 1: 
+        return 0
+    return round(20 * math.log10(sound_value), 2)
+
+def light_to_lux(light_value):
+    if light_value == 0:
+        return 0
+    return round((light_value / 1023) * 500, 2)
 
 try:
     client.connect(MQTT_BROKER, MQTT_PORT, 60)
@@ -46,15 +43,19 @@ while True:
         light_intensity = grovepi.analogRead(light_sensor)
         light_lux = light_to_lux(light_intensity)
         
+        #obtenir les valeurs du capteur de son
         sound_level = grovepi.analogRead(sound_sensor)
         sound_db = sound_to_db(sound_level)
-        
+    
         payload = {
-            "light_raw": light_intensity,
-            "light_lux": light_lux,
-            "sound_raw": sound_level,
-            "sound_db": sound_db
-        }
+		"MAC_ADDRESS": get_mac_address(),
+		"TIMESTAMP": datetime.datetime.now().isoformat(),
+		"METRICS": {
+			"LIGHT": light_lux,
+			"SOUND": sound_db,
+			
+		}
+	}
         
         client.publish(MQTT_TOPIC, json.dumps(payload))
 
