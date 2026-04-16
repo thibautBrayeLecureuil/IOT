@@ -6,7 +6,7 @@ import json
 import paho.mqtt.client as mqtt
 from getmac import get_mac_address
 
-MQTT_BROKER = "87.106.23.178" 
+MQTT_BROKER = "10.33.14.44" 
 MQTT_PORT = 1883
 MQTT_TOPIC = "device/LS"
 

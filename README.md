@@ -1,54 +1,78 @@
-# Protocole MQTT x Weather
+📋 Projet IoT : Station de Surveillance Environnementale (LS & HT)
+1. Présentation du Projet
 
-## Payload des devices
+Ce projet consiste en une solution de monitoring en temps réel de l'environnement (Lumière, Son, Température et Humidité). Il utilise une architecture MQTT où des Raspberry Pi jouent le rôle d'émetteurs (Publishers) et un ordinateur central joue le rôle de récepteur (Subscriber) via un tableau de bord graphique.
+2. Architecture Technique
 
-- Format : **JSON**
+    Hardware :
 
-- Payload :
-	```json
-	{
-		MAC_ADDRESS: <value>,
-		TIMESTAMP: <value>,
-		METRICS: {
-			LIGHT: <value>,
-			SOUND: <value>,
-			/* OR */
-			TEMPERATURE: <value>,
-			HUMIDITY: <value>,
-		}
-	}
-	```
+        Raspberry Pi 3B+ avec carte GrovePi+.
 
-## Ports
+        Capteurs : Son (A0), Lumière (A1), DHT11 (D2).
 
-- Phase de **TESTS**
-	- Port au choix afin de pouvoir tester la réception de nos propres devices.
-- Phase de **PRODUCTION**
-	- **1883**, port par défaut pour MQTT, afin de receptionner tous les devices.
+    Protocole : MQTT (Broker Mosquitto).
 
-## Fréquence
+    Format des données : JSON (Standardisé avec MAC Address et Timestamp).
 
-- **Lumière et Son** : 
-	- 10 secondes
-	- car le volume du son et la lumière peuvent changer assez souvent au cours d'une période réduite.
-- **DHT11 (Humidité et Température)** : 
-	- 60 secondes,
-	- car les températures et l'humidité ne changent pas aussi souvent que la lumière et le son.
-- **Total** :
-	- 7 réceptions par minutes
-	- ce qui permet un débit très cocrect afin de recevoir de plusieurs appareils.
+    Lancement : Service Linux systemd pour un démarrage automatisé "Plug & Play".
 
-## QoS
+3. Installation
+Émetteurs (Raspberry Pi)
 
-- **Informations**
-	- **Bande Passante** : 556x10³
-	- **Taille d'un message type**: 992 bits x 2 = 1984 bits (multiplié par 2 pour prendre en compte les données MQTT)
-	- **Niveaux de QoS** : 0 et 1
+    Installez les dépendances Python nécessaires :
+    Bash
 
+    pip3 install paho-mqtt getmac adafruit-circuitpython-dht
 
-- **Duo d'appareils maximum interconnecté théorique**: $(556*10⁶)/(2*2*992)=140120$ **duo d'appareils**
+    Placez les scripts main.py (Dossier CLS) et main.py ( Dossier DHT) dans le dossier /home/pi/Projet/.
 
-- **Taux d'échecs** : Au vu de la marge que l'ont a sur la bande passante on fixe le taux d'echecs d'augmentation de la QoS à 5%.
+    Configurez l'adresse IP du Broker dans les fichiers (par défaut 10.33.14.44).
 
-- **Perte** : Afin de contrer des potentielles pertes lors d'un QoS à 1 nous ajoutons un accusé de reception.
+Récepteur (PC de contrôle)
 
+    Installez Python et la bibliothèque paho-mqtt.
+
+    Assurez-vous que le fichier config.json contient l'adresse IP correcte du Broker.
+
+    Lancez l'interface de supervision :
+    Bash
+
+    python3 main.py (Dossier BROKER)
+
+4. Configuration Systemd
+
+Pour assurer la continuité de service, le script est géré par un service système :
+
+    Fichier : /etc/systemd/system/capteurs.service
+
+    Commandes utiles :
+
+        sudo systemctl start capteurs.service : Démarrer manuellement.
+
+        sudo systemctl enable capteurs.service : Activer au démarrage.
+
+        sudo journalctl -u capteurs.service -f : Voir les logs en direct.
+
+5. Spécifications du Payload MQTT
+
+Les messages sont envoyés sur les topics LTH/LS (toutes les 10s) et LTH/HT (toutes les 60s) au format suivant :
+JSON
+
+{
+    "MAC_ADDRESS": "b8:27:eb:aa:94:4b",
+    "TIMESTAMP": "2026-02-17T16:23:06",
+    "METRICS": {
+        "LIGHT": 374.39,
+        "SOUND": 37.73,
+        "TEMPERATURE": 22.5,
+        "HUMIDITY": 45.0
+    }
+}
+
+6. Choix Techniques et Limites
+
+    Conversions : Les données brutes (0-1023) sont converties en Lux (linéaire) et en dB (logarithmique via math.log10).
+
+    Fiabilité : Utilisation du paramètre -u dans systemd pour un logging sans tampon et Restart=always en cas de crash.
+
+    Limite : Le calcul des dB est une estimation logicielle sans étalonnage par sonomètre professionnel.
