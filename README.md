@@ -1,4 +1,4 @@
-📋 Projet IoT : Station de Surveillance Environnementale (LS & HT)
+Projet IoT : Station Météo
 1. Présentation du Projet
 
 Ce projet consiste en une solution de monitoring en temps réel de l'environnement (Lumière, Son, Température et Humidité). Il utilise une architecture MQTT où des Raspberry Pi jouent le rôle d'émetteurs (Publishers) et un ordinateur central joue le rôle de récepteur (Subscriber) via un tableau de bord graphique.
