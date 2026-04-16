@@ -10,10 +10,15 @@ import json
 
 dhtDevice = adafruit_dht.DHT11(board.D2)
 
-BROKER = "10.33.14.44"
-PORT = 1883
-DEVICE_ID = socket.gethostname()
-TOPIC = f"HT"
+try:
+    with open('config.json', 'r') as f:
+        config = json.load(f)
+    
+    MQTT_BROKER = config['mqtt']['broker']
+    MQTT_PORT = config['mqtt']['port']
+    MQTT_TOPIC = config['mqtt']['topics'][1] 
+except Exception as e:
+    exit(1)
 
 client = mqtt.Client(
  mqtt.CallbackAPIVersion.VERSION2,

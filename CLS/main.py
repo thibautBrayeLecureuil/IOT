@@ -6,9 +6,15 @@ import json
 import paho.mqtt.client as mqtt
 from getmac import get_mac_address
 
-MQTT_BROKER = "10.33.14.44" 
-MQTT_PORT = 1883
-MQTT_TOPIC = "device/LS"
+try:
+    with open('config.json', 'r') as f:
+        config = json.load(f)
+    
+    MQTT_BROKER = config['mqtt']['broker']
+    MQTT_PORT = config['mqtt']['port']
+    MQTT_TOPIC = config['mqtt']['topics'][1] 
+except Exception as e:
+    exit(1)
 
 sound_sensor = 0 #port a0
 light_sensor = 1 #port a1
